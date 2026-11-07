@@ -1,5 +1,9 @@
 # SLAM Lab
 
+RUN INSTRUCTIONS
+npm run dev - run web server
+npm run live - run data sweeper
+
 An open source UAV lab that runs in your browser. Explore a simulated city, see
 what a drone's sensors see, and edit the math behind its motion, all without
 installing a robotics stack.
@@ -157,3 +161,4 @@ the supported demo's CI checks pass on `main`.
 Copyright 2026 Cognipilot. Licensed under [Apache 2.0](LICENSE); see [NOTICE](NOTICE).
 Third-party models, textures, and dependencies retain their own licenses and
 [asset credits](public/models/licenses/ACTORS.md).
+# Phone-SLAM
