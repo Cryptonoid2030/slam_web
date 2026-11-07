@@ -19,6 +19,8 @@ import {nativeParametersFor,NATIVE_SLAM_PARAMETERS,type ParameterValues} from '.
 import {FrameClock} from './frame-clock';
 import {runtimeProjectKey} from './runtime-project-key';
 import {selectedFlightTour,type FlightTour} from './flight-tour';
+import type {LiveFeed} from './live-source';
+import type {NativeVariant} from './native-assets';
 export interface Metrics { time:number; ate:number|null; currentError:number|null; orientationError:number|null; confidence:number; points:number; features:number; rtf:number; frames:number; loops:number; dropped:number }
 export interface FlowTiming {totalMs:number;bufferBytes:number|null}
 export interface VehicleFrame {frame:SensorFrame;estimate:Estimate;truth:Truth|undefined;metrics:Metrics}
@@ -51,6 +53,10 @@ export class Runtime {
   private cameraLidar=false;
   private imuIntervals:NonNullable<SensorFrame['imuIntervals']>=[];
   private replay?:RunRecord[];
+  /** Live phone capture: records are pulled one at a time into a sparse `replay`. */
+  private live?:LiveFeed;
+  /** Which published native program set the next compile loads: raster input or phone landmarks. */
+  nativeVariant:NativeVariant='image';
   private externalStep=false;
   private secondary?:Runtime;
   private fleetStepping=false;
@@ -173,14 +179,14 @@ export class Runtime {
     this.random=seededRandom(project.seed);this.gpsRandom=seededRandom(project.seed^0x475053);this.gps=null;this.sequence=0;this.cameraSequence=0;this.time=truth.time;
     this.resetSensorClock(sensorRates(project));
     this.heldImu=(await this.sampleSensors(truth,true,false)).imu;
-    this.reference=undefined;this.records=[];this.replay=undefined;
+    this.reference=undefined;this.records=[];this.replay=undefined;this.releaseLive();
     this.project=structuredClone(project);this.order=order;this.tourMode=selectedFlightTour(project);
     if(project.slamBackend==='native'&&order.some(node=>node.kind==='slam')){
       this.onStatus('Loading native SLAM programs…');
       const client=new ModelicaSlamClient(text=>this.onStatus(text));
       try{
         const initial=await this.captureInitialFrame();
-        this.slamProgram=await client.initialize(base,initial,project.loopClosureSettings,nativeParametersFor(project));
+        this.slamProgram=await client.initialize(base,initial,project.loopClosureSettings,nativeParametersFor(project),this.nativeVariant);
         this.slam=client;
         this.onInitialFrame(this.vehicleIndex,initial,this.slamProgram.estimate);
       }catch(error){client.close();this.project=undefined;throw error;}
@@ -248,7 +254,7 @@ export class Runtime {
     this.random=seededRandom(project.seed);this.gpsRandom=seededRandom(project.seed^0x475053);this.gps=null;
     this.sequence=0;this.cameraSequence=0;this.time=0;this.resetSensorClock(sensorRates(project));
     this.imuIntervals=[];this.cameraLidar=false;this.heldImu=(await this.sampleSensors(truth,true,false)).imu;
-    this.reference=undefined;this.records=[];this.replay=undefined;this.lastFrame=undefined;
+    this.reference=undefined;this.records=[];this.replay=undefined;this.releaseLive();this.lastFrame=undefined;
     this.pendingFrame=undefined;this.pendingRecord=undefined;this.externalStep=false;
     this.command={forward:0,left:0,up:0,yaw:0};this.flow.stats.clear();
     this.frameClock.reset();this.pacingSince=undefined;this.pacedWaitMs=0;this.startWall=0;this.startTime=0;
@@ -339,6 +345,13 @@ export class Runtime {
   private async stepVehicle(barrier?:LockstepBarrier) {
     if(this.stepping) throw new Error('A lockstep frame is already executing');
     if(!this.project) throw new Error('Compile the project first');
+    if(this.live){
+      // Block until the phone delivers the next frame (or pause/reset releases us with none).
+      const record=await this.live.next();
+      if(!record||!this.live)return;
+      this.replay![this.sequence]=record;
+      if(this.sequence>0)delete this.replay![this.sequence-1];
+    }
     if(this.replay && this.sequence>=this.replay.length) {this.running=false;this.onStatus('Replay finished');return;}
     this.stepping=true;
     this.lastWorkerTimings={};this.lastTransportTimings={};
@@ -519,7 +532,7 @@ export class Runtime {
     };
     void loop();
   }
-  pause() {this.running=false;this.playbackEpoch++;}
+  pause() {this.running=false;this.playbackEpoch++;this.live?.wake();}
   async configureNativeParameters(values:ParameterValues){
     if(this.running||this.busy)throw Error('Pause at a completed frame before changing model parameters');
     const vehicles=this.secondary?[this,this.secondary]:[this];
@@ -559,4 +572,30 @@ export class Runtime {
     await this.compile(this.project);if(origin){this.origin=structuredClone(origin);await this.modelicaMath!.call('origin',{origin:this.origin});}
     this.replay=records;this.onStatus(`Replay ready · ${records.length} frames · sensor time preserved`);
   }
+  /** Run the native SLAM on frames pulled from a live phone feed. The feed's
+   * time-zero initial frame seeds the map; later frames carry their own IMU intervals. */
+  async startLive(feed:LiveFeed){
+    if(this.secondary)throw new Error('Set Vehicles to 1 drone before live capture');
+    if(!this.project)throw new Error('Compile before live capture');
+    if(!this.slam)throw new Error('Live capture needs the Native Modelica SLAM estimator (Configuration → Flight → Estimator)');
+    const initial=feed.initial;if(!initial)throw new Error('No phone frame has arrived yet');
+    const expected=this.project.cameraResolution??'848x480',actual=`${initial.calibration.width}x${initial.calibration.height}`;
+    if(expected!==actual)throw new Error(`Set the camera to ${actual} in Configuration; the compiled SLAM expects ${expected}`);
+    this.pause();
+    if(this.busy)throw new Error('Wait for the current lockstep frame to finish');
+    this.resetting=true;
+    try{
+      const estimate=await this.slam.reset(initial,this.project.loopClosureSettings,nativeParametersFor(this.project));
+      this.slamProgram={...this.slamProgram!,estimate};
+      this.live?.wake();this.live=feed;this.replay=[];
+      this.sequence=0;this.cameraSequence=1;this.time=0;this.lastFrame=undefined;this.reference=undefined;this.records=[];
+      this.pendingFrame=undefined;this.pendingRecord=undefined;this.externalStep=false;this.flow.stats.clear();
+      this.frameClock.reset();this.pacingSince=undefined;this.pacedWaitMs=0;this.startWall=0;this.startTime=0;
+      this.onInitialFrame(this.vehicleIndex,initial,estimate);
+      this.onStatus('Live capture ready · the SLAM follows the phone as fast as it can');
+    }finally{this.resetting=false;}
+  }
+  stopLive(){this.pause();this.releaseLive();this.replay=undefined;}
+  get liveActive(){return !!this.live;}
+  private releaseLive(){this.live?.wake();this.live=undefined;}
 }

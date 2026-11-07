@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>SLAM Lab · Live map</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1118;--panel:#111b25cc;--line:#26343f;--text:#d7e1e9;--muted:#8396a7;--green:#53e2b2;--red:#ed8b75}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:13px/1.4 -apple-system,system-ui,sans-serif;overscroll-behavior:none}
+#scene{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.hud{position:fixed;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#top{top:max(10px,env(safe-area-inset-top))}
+#bottom{bottom:max(10px,env(safe-area-inset-bottom));display:flex;gap:8px;flex-wrap:wrap}
+#headline{display:flex;align-items:center;gap:8px;font-weight:650}
+#dot{width:9px;height:9px;border-radius:50%;background:var(--red)}
+#dot.ok{background:var(--green)}
+#stats{margin-top:6px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;display:grid;grid-template-columns:repeat(2,1fr);gap:2px 12px}
+#stats b{color:var(--text);font-weight:550}
+#lag{height:4px;border-radius:2px;background:#1c2a35;margin-top:8px;overflow:hidden}
+#lag i{display:block;height:100%;width:0;background:var(--green);transition:width .3s,background .3s}
+button{font:inherit;color:var(--text);background:#19242e;border:1px solid #344450;border-radius:8px;padding:10px 14px;min-height:44px;flex:1}
+button.on{border-color:var(--green);color:var(--green)}
+button.danger{border-color:#7a4a40;color:var(--red)}
+#note{margin-top:6px;color:var(--muted);font-size:11px}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div id="top" class="hud">
+  <div id="headline"><span id="dot"></span><span id="title">Connecting…</span></div>
+  <div id="stats"></div>
+  <div id="lag"><i></i></div>
+  <div id="note"></div>
+</div>
+<div id="bottom" class="hud">
+  <button id="follow">Follow</button>
+  <button id="fit" class="on">Fit map</button>
+  <button id="graph" class="on">Graph</button>
+  <button id="stop" class="danger">Stop</button>
+</div>
+<script type="importmap">{"imports":{"three":"/three/three.module.js"}}</script>
+<script type="module" src="/view.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import {nativeManifestUrl} from './native-assets';
+import {NATIVE_VARIANT_DIRECTORY,nativeManifestUrl,type NativeVariant} from './native-assets';
 import type {ModelParameter} from './model-parameters';
 /** Host for one compiler-exported native Modelica program (Rumoca native_step
  * export). The module owns the algorithm: it imports one linear memory holding
@@ -188,8 +188,8 @@ function aligned<T extends Uint32Array|Float64Array>(bytes:Uint8Array,Type:{new(
 }
 
 /** Fetch and decode one published asset from the same origin. */
-export async function fetchNativeAsset(base:URL,file:string,encoding:'gzip'|'identity'):Promise<Uint8Array> {
-  const url=new URL(`vendor/slam/${file}`,base);
+export async function fetchNativeAsset(base:URL,file:string,encoding:'gzip'|'identity',variant:NativeVariant='image'):Promise<Uint8Array> {
+  const url=new URL(`${NATIVE_VARIANT_DIRECTORY[variant]}/${file}`,base);
   if(url.origin!==base.origin)throw new Error('Native SLAM assets must be same origin');
   const response=await fetch(url);
   if(!response.ok)throw new Error(`Native SLAM asset ${file} is unavailable (HTTP ${response.status})`);
@@ -202,8 +202,8 @@ export async function fetchNativeAsset(base:URL,file:string,encoding:'gzip'|'ide
   }
   return bytes;
 }
-export async function fetchNativeManifest(base:URL,resolution?:string):Promise<SlamNativeManifest> {
-  const url=nativeManifestUrl(base);
+export async function fetchNativeManifest(base:URL,resolution?:string,variant:NativeVariant='image'):Promise<SlamNativeManifest> {
+  const url=nativeManifestUrl(base,variant);
   if(url.origin!==base.origin)throw new Error('Native SLAM assets must be same origin');
   const response=await fetch(url);
   if(!response.ok)throw new Error('Native SLAM programs are not published on this site; build the assets from a compiler export first');

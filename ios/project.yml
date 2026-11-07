@@ -1,0 +1,33 @@
+# XcodeGen spec: `brew install xcodegen && cd ios && xcodegen generate && open SlamCapture.xcodeproj`
+name: SlamCapture
+options:
+  bundleIdPrefix: edu.purdue.goppert
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  SlamCapture:
+    type: application
+    platform: iOS
+    sources: [SlamCapture]
+    info:
+      path: SlamCapture/Info.plist
+      properties:
+        CFBundleDisplayName: SLAM Capture
+        UILaunchScreen: {}
+        UIRequiredDeviceCapabilities: [arkit]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSCameraUsageDescription: The camera and LiDAR depth are streamed to your computer for SLAM.
+        NSMotionUsageDescription: Motion sensor data is streamed to your computer for SLAM.
+        NSLocalNetworkUsageDescription: The app connects to the SLAM relay on your computer over the local network.
+        # The relay is plain ws:// on the LAN. This is a personal sideloaded tool, so allow cleartext.
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: edu.purdue.goppert.slamcapture
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_STYLE: Automatic
+        # Set DEVELOPMENT_TEAM to your Apple ID team in Xcode (Signing & Capabilities); a free Personal Team works.
+        GENERATE_INFOPLIST_FILE: NO
+        # Landmark selection loops over every pixel; unoptimized Debug builds are several times too slow.
+        SWIFT_OPTIMIZATION_LEVEL: "-O"

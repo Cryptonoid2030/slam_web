@@ -1,0 +1,313 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7A4D91E2C6B84F30A5D2B718 /* LandmarkExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A0C7D4B2F4C9A8D3E6F01 /* LandmarkExtractor.swift */; };
+		198AC6CC073F10F61007E83E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCAA7AB25D8D748D93A0F09F /* ContentView.swift */; };
+		476519C7BC10773FCAE723B2 /* RelayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A81A7EDDDFF1005277517DD6 /* RelayClient.swift */; };
+		97BE33B17BE5F041D5CC5F70 /* SlamCaptureApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38CC43B68FEE5DAA43F31AA9 /* SlamCaptureApp.swift */; };
+		E7143A7DDAA29E799AC2D6B9 /* CaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FCD74BD95122C2B9C70ED3 /* CaptureEngine.swift */; };
+		EAE0709AA68AC3A84463D63B /* MotionStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33E34F207D867FF6AC7D0F2B /* MotionStreamer.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5E1A0C7D4B2F4C9A8D3E6F01 /* LandmarkExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkExtractor.swift; sourceTree = "<group>"; };
+		04FCD74BD95122C2B9C70ED3 /* CaptureEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureEngine.swift; sourceTree = "<group>"; };
+		23E8873D7C56BA177174C7FE /* SlamCapture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SlamCapture.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		33E34F207D867FF6AC7D0F2B /* MotionStreamer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionStreamer.swift; sourceTree = "<group>"; };
+		38CC43B68FEE5DAA43F31AA9 /* SlamCaptureApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlamCaptureApp.swift; sourceTree = "<group>"; };
+		A81A7EDDDFF1005277517DD6 /* RelayClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayClient.swift; sourceTree = "<group>"; };
+		B1737D5D7FDC9A414C14BFE8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CCAA7AB25D8D748D93A0F09F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		31C198952AA72E1AFA0F61B6 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				23E8873D7C56BA177174C7FE /* SlamCapture.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		48B0D7439F90273291ECF382 /* SlamCapture */ = {
+			isa = PBXGroup;
+			children = (
+				04FCD74BD95122C2B9C70ED3 /* CaptureEngine.swift */,
+				CCAA7AB25D8D748D93A0F09F /* ContentView.swift */,
+				5E1A0C7D4B2F4C9A8D3E6F01 /* LandmarkExtractor.swift */,
+				B1737D5D7FDC9A414C14BFE8 /* Info.plist */,
+				33E34F207D867FF6AC7D0F2B /* MotionStreamer.swift */,
+				A81A7EDDDFF1005277517DD6 /* RelayClient.swift */,
+				38CC43B68FEE5DAA43F31AA9 /* SlamCaptureApp.swift */,
+			);
+			path = SlamCapture;
+			sourceTree = "<group>";
+		};
+		A37ED1D03B8516EE47AD657A = {
+			isa = PBXGroup;
+			children = (
+				48B0D7439F90273291ECF382 /* SlamCapture */,
+				31C198952AA72E1AFA0F61B6 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		74E8AD813FAF4134073C3512 /* SlamCapture */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 76D0CE24662D7CB20CD9B7A8 /* Build configuration list for PBXNativeTarget "SlamCapture" */;
+			buildPhases = (
+				19764C028D62994254E22D6B /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SlamCapture;
+			packageProductDependencies = (
+			);
+			productName = SlamCapture;
+			productReference = 23E8873D7C56BA177174C7FE /* SlamCapture.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2A1C4ED89970D396E535478F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					74E8AD813FAF4134073C3512 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = AB65C89691642092F6193839 /* Build configuration list for PBXProject "SlamCapture" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A37ED1D03B8516EE47AD657A;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 31C198952AA72E1AFA0F61B6 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				74E8AD813FAF4134073C3512 /* SlamCapture */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		19764C028D62994254E22D6B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E7143A7DDAA29E799AC2D6B9 /* CaptureEngine.swift in Sources */,
+				198AC6CC073F10F61007E83E /* ContentView.swift in Sources */,
+				7A4D91E2C6B84F30A5D2B718 /* LandmarkExtractor.swift in Sources */,
+				EAE0709AA68AC3A84463D63B /* MotionStreamer.swift in Sources */,
+				476519C7BC10773FCAE723B2 /* RelayClient.swift in Sources */,
+				97BE33B17BE5F041D5CC5F70 /* SlamCaptureApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2A7110443CC9B497B7AF7484 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		65B4697CE31D976031F50CC5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C1754BCF8E737AE7F1881662 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PX3YNM5LC9;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SlamCapture/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cryptonium.appname;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F51BA59E8E07550A7379F153 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = PX3YNM5LC9;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SlamCapture/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.cryptonium.appname;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		76D0CE24662D7CB20CD9B7A8 /* Build configuration list for PBXNativeTarget "SlamCapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C1754BCF8E737AE7F1881662 /* Debug */,
+				F51BA59E8E07550A7379F153 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AB65C89691642092F6193839 /* Build configuration list for PBXProject "SlamCapture" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2A7110443CC9B497B7AF7484 /* Debug */,
+				65B4697CE31D976031F50CC5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2A1C4ED89970D396E535478F /* Project object */;
+}

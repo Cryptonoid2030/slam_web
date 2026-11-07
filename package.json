@@ -25,7 +25,9 @@
     "test:browser:gpu": "playwright test --config playwright.gpu.config.ts",
     "test:browser:mobile": "playwright test --config playwright.mobile.config.ts",
     "test:office-ci": "node --test --test-concurrency=1 scripts/office-ci-contract.test.mjs scripts/office-native-observation.test.mjs scripts/office-consensus-orchestration.test.mjs scripts/office-ci-worker-boot.test.mjs scripts/office-ci-preparation.test.mjs",
-    "test:office-ci-kernels": "node --test --test-concurrency=1 scripts/loop-consensus-probe.test.mjs scripts/loop-consensus-probe-numerics.test.mjs scripts/loop-catalog-snapshot.test.mjs scripts/office-pair-adapter.test.mjs scripts/loop-pair-reconstruction.test.mjs"
+    "test:office-ci-kernels": "node --test --test-concurrency=1 scripts/loop-consensus-probe.test.mjs scripts/loop-consensus-probe-numerics.test.mjs scripts/loop-catalog-snapshot.test.mjs scripts/office-pair-adapter.test.mjs scripts/loop-pair-reconstruction.test.mjs",
+    "live": "node live/server.mjs",
+    "live:simulate": "node live/simulate-phone.mjs"
   },
   "dependencies": {
     "@cognipilot/rumoca": "0.10.3",
@@ -39,10 +41,12 @@
     "@playwright/test": "1.60.0",
     "@types/node": "24.10.0",
     "@types/three": "0.180.0",
+    "@types/ws": "^8.18.1",
     "typescript": "5.9.3",
     "vite": "7.3.6",
     "vitest": "4.1.11",
-    "wabt": "1.0.39"
+    "wabt": "1.0.39",
+    "ws": "^8.18.3"
   },
   "license": "Apache-2.0"
 }

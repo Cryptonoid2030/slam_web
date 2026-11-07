@@ -1,11 +1,11 @@
 import {imuIntervals} from './imu-intervals';
 import {validateSensorFrame,validateSensorObservation} from './packet';
 import type {CameraImageLayout} from './gpu-realsense-packing';
-import type {InitialSensorFrame,SensorFrame,SensorObservation} from './types';
+import type {InitialSensorFrame,LandmarkInputs,SensorFrame,SensorObservation} from './types';
 
 interface SlamCameraFrame {
   imageEpoch:number;frameTime:number;
-  rgb:Uint8Array;depth:Uint16Array;imageLayout:CameraImageLayout;
+  rgb:Uint8Array;depth:Uint16Array;imageLayout:CameraImageLayout;landmarks?:LandmarkInputs;
   rgbCalibration:number[];depthCalibration:number[];depthUnits:number;
   opticalToBody:number[];cameraOriginBody:number[];
   disparityNoise:number;noiseReferenceFx:number;baseline:number;
@@ -45,7 +45,7 @@ function cameraFrame(frame:SensorObservation&{depth:Uint16Array;imageLayout:Came
   const {color,depth}=frame.imageLayout;
   const dimensions=(image:CameraImageLayout['color']|CameraImageLayout['depth'])=>({
     width:image.width,height:image.height,strideBytes:image.strideBytes,bytes:image.bytes});
-  return {imageEpoch:frame.sequence,frameTime:frame.time,rgb:frame.rgb,depth:frame.depth,
+  return {imageEpoch:frame.sequence,frameTime:frame.time,rgb:frame.rgb,depth:frame.depth,landmarks:frame.landmarks,
     imageLayout:{color:{...dimensions(color),format:'RGB8'},
       depth:{...dimensions(depth),format:'Z16',unitsMeters:depth.unitsMeters,isBigEndian:false},
       rowOrder:'top-down',aligned:false,clockDomain:'simulation'},

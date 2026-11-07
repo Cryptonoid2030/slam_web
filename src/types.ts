@@ -9,11 +9,15 @@ export interface SensorObservation {
   /** Present for native RGB8/Z16. Absent only for historical RGBA/F32 datasets. */
   imageLayout?:CameraImageLayout;
   imu: { accel: number[]; gyro: number[] };
+  /** Phone-selected landmarks for the landmark-input SLAM; rgb/depth then hold only their patches. */
+  landmarks?:LandmarkInputs;
 }
+/** Native landmark inputs: zero-based pixels (x,y interleaved), scores, and the number of valid leading rows. */
+export interface LandmarkInputs {pixels:Float64Array;score:Float64Array;count:number}
 export interface SensorFrame extends SensorObservation {
   dt:number;
   /** Held measurements over each interval; endpoint samples apply next. */
-  imuIntervals?:{time:number;dt:number;imu:{accel:number[];gyro:number[]}}[];
+  imuIntervals?:{time:number;dt:number;imu:{accel:number[];gyro:number[]};/** The device was at rest for the whole frame: the estimator may apply a zero-velocity update. */stationary?:boolean}[];
   capture?:Record<string,unknown>;
 }
 export interface InitialSensorFrame extends SensorFrame {dt:0;imuIntervals:[]}

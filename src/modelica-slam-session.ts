@@ -1,6 +1,7 @@
 import {SlamNativeProgram,type SlamNativeFetch,type SlamNativeManifest} from './slam-native-program';
 import type {SlamInitialFrame,SlamIntervalFrame} from './modelica-slam-frame';
 import type {Estimate} from './types';
+import {extractLandmarks,sparseFrame} from './landmark-source';
 import {vectorNorm} from './covariance';
 import {checkedLoopClosureSettings,LOOP_CLOSURE_PARAMETERS,type LoopClosureSettings} from './loop-closure-settings';
 import {checkedParameterValues,type ParameterValues} from './model-parameters';
@@ -94,6 +95,7 @@ export class ModelicaSlamSession {
     if(Math.abs(end-interval.time)>1e-6)throw new Error(`IMU interval at ${interval.time} s does not continue the native SLAM clock at ${this.clock} s`);
     writeVector(this.step,'accel',interval.imu.accel);writeVector(this.step,'gyro',interval.imu.gyro);
     this.step.real('h')[0]=interval.dt;this.step.real('intervalTime')[0]=end;
+    if(this.step.hasInput('zeroVelocity'))this.step.real('zeroVelocity')[0]=interval.stationary?1:0;
     return end;
   }
 
@@ -161,6 +163,16 @@ export class ModelicaSlamSession {
     const stride=depth.strideBytes/2;
     if(stride===depth.width)z.set(frame.depth.subarray(0,z.length));
     else for(let row=0;row<depth.height;row++)z.set(frame.depth.subarray(row*stride,row*stride+depth.width),row*depth.width);
+    if(frame.landmarks){
+      // Landmark-input programs take the phone's corners; image programs have no such inputs.
+      if(!program.hasInput('landmarkPixels'))throw new Error('This native SLAM program does not accept landmark inputs');
+      program.real('landmarkPixels').set(frame.landmarks.pixels);program.real('landmarkScore').set(frame.landmarks.score);
+      program.real('landmarkCount')[0]=frame.landmarks.count;
+    }else if(program.hasInput('landmarkPixels')){
+      // A landmark program fed a full image (synthetic world, recorded dataset): select the corners here, exactly as the phone does.
+      const landmarks=sparseFrame(extractLandmarks(frame.rgb,frame.depth,color.width,color.height,{depthUnitsMeters:frame.depthUnits}),color.width,color.height);
+      program.real('landmarkPixels').set(landmarks.pixels);program.real('landmarkScore').set(landmarks.score);program.real('landmarkCount')[0]=landmarks.count;
+    }
     program.integer('imageEpoch')[0]=BigInt(frame.imageEpoch);
   }
   private imageFrom(program:SlamNativeProgram):ImageObservation {

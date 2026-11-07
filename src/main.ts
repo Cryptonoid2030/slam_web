@@ -10,6 +10,7 @@ import {mountModelParameters} from './model-parameters-panel';
 import {modelParameterTargets,parameterTargetVersion} from './model-parameter-targets';
 import {nativeParametersFor,NATIVE_SLAM_PARAMETERS,type ParameterValues} from './model-parameters';
 import type { Estimate,Pose,RunRecord,SensorFrame,Truth } from './types';
+import {installLiveCapture} from './live-controller';
 import { uncertaintySummary } from './covariance';
 import {ComparisonTracker,type TimedPose} from './comparison';
 import {validateSensorFrame} from './packet';
@@ -941,6 +942,18 @@ function render(now=0){
   requestAnimationFrame(render);
 }requestAnimationFrame(render);
 // Exposed state supports browser integration checks without privileged access.
+installLiveCapture({runtime,status,
+  async prepare(resolution,variant){
+    if(project.slamBackend==='native'&&project.cameraResolution===resolution&&ready&&!dirty&&runtime.nativeVariant===variant)return;
+    runtime.nativeVariant=variant;project.slamBackend='native';project.cameraResolution=resolution;
+    el<HTMLSelectElement>('slam-backend').value='native';
+    changed();await compile();configuration.sync(project);
+    if(!ready)throw new Error('The native SLAM did not finish compiling: '+(el('status').textContent||'see the status line'));
+  },
+  release(){if(runtime.nativeVariant!=='image'){runtime.nativeVariant='image';changed();}},
+  started(){truthPath=[];estimatePath=[];comparisons.clear();externalLatest=undefined;el('run').textContent='Ⅱ Pause';},
+  stopped(){el('run').textContent='▶ Run';},
+});
 (window as any).__slamLab={runtime,comparisons,sourceEditor,performanceMonitor,loopHistories,get initialized(){return initialized;},get viewer(){return viewer;},get project(){return project;},get slamBuildReceipt(){return slamBuildReceipt;},get latest(){return latest;},get ready(){return ready;},get compiling(){return compiling;},get externalSamples(){return Array.from(comparisons.streams.values()).reduce((sum,s)=>sum+s.samples,0);},get externalLatest(){return externalLatest;}};
 void (async()=>{
   startup.stage(0,'Opening your project…');
