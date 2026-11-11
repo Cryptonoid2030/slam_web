@@ -42,7 +42,7 @@ export async function installPublishedNativeAssets(destination,sourceSha256){
   const unpacked=await mkdtemp(join(cache,'unpack-'));
   try{
     const {stdout}=await run('tar',['--list','--file',archive]);
-    for(const entry of stdout.trim().split('\n'))
+    for(const entry of stdout.trim().split(/\r?\n/))
       if(entry!=='.'&&entry!=='./'&&!/^(?:\.\/)?(?:manifest\.json|[a-f0-9]{16}-[A-Za-z0-9_.-]+)$/.test(entry))throw new Error('Unexpected native SLAM package entry');
     await run('tar',['--extract','--file',archive,'--directory',unpacked,'--no-same-owner','--no-same-permissions']);
     const manifest=JSON.parse(await readFile(join(unpacked,'manifest.json'),'utf8'));

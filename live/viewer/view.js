@@ -7,6 +7,14 @@ const $=id=>document.getElementById(id);
 const toThree=(x,y,z)=>new THREE.Vector3(x,z,-y);
 const query=new URLSearchParams(location.search),token=query.get('token');
 
+const depthPreview=query.get('source')==='d435';
+if(depthPreview){
+  document.title='SLAM Lab · D435 depth preview';
+  $('note').textContent='Camera-relative points · one depth frame at a time';
+  for(const id of ['follow','graph','stop','lag'])$(id).hidden=true;
+  $('fit').textContent='Fit cloud';
+}
+
 const renderer=new THREE.WebGLRenderer({canvas:$('scene'),antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1118);
@@ -88,6 +96,7 @@ function fit(){
 }
 
 // ---- network -------------------------------------------------------------------------
+let pointCount=0;
 let socket,peers={ingest:0,runner:0,views:0},state=null,retry=0;
 function connect(){
   const scheme=location.protocol==='https:'?'wss':'ws';
@@ -102,13 +111,23 @@ function connect(){
       else if(message.type==='status'&&message.message){$('note').textContent=message.message;}
     }else{
       const view=new DataView(event.data);
-      if(view.getUint32(0,true)===0x31535450){const count=view.getUint32(4,true);setMap(new Float32Array(event.data,8,count*3));}
+      if(view.byteLength<8||view.getUint32(0,true)!==0x31535450)return;
+      const count=view.getUint32(4,true);
+      if(view.byteLength!==8+count*12)return;
+      setMap(new Float32Array(event.data,8,count*3));
+      if(depthPreview){pointCount=count;render();}
     }
   };
 }
 function render(override){
   const live=socket?.readyState===1&&peers.runner===1;
   $('dot').className=live?'ok':'';
+  if(depthPreview&&!live&&pointCount){pointCount=0;setMap(new Float32Array());}
+  if(depthPreview){
+    $('title').textContent=override??(live?'D435 live depth preview':'Waiting for the D435 sender');
+    $('stats').textContent=live?pointCount.toLocaleString()+' points':'';
+    return;
+  }
   $('title').textContent=override??(socket?.readyState!==1?'Connecting…':!peers.runner?'Waiting for the SLAM tab on the Mac':!peers.ingest?'SLAM ready · waiting for the phone':'Live');
   const s=state,lag=s?Math.max(0,s.captured-s.time):0;
   $('stats').innerHTML=s?`<span>Processed <b>${s.time.toFixed(1)} s</b></span><span>Behind <b>${lag.toFixed(1)} s</b></span>

@@ -943,6 +943,48 @@ function render(now=0){
 }requestAnimationFrame(render);
 // Exposed state supports browser integration checks without privileged access.
 installLiveCapture({runtime,status,
+  d435Started(){
+    runtime.pause();
+    pendingPresentation=undefined;
+    pendingSensorPreview=undefined;
+    truthPath=[];estimatePath=[];
+    world.setEnvironmentVisible(false);
+    el('run').textContent='▶ Run';
+    drawTrajectory();
+  },
+  d435Frame(points,position,time){
+    const [x,y,z]=position??[0,0,0];
+    const pose={x,y,z,quaternion:[1,0,0,0]};
+    const last=estimatePath.at(-1);
+    if(position&&(!last||Math.hypot(x-last.x,y-last.y,z-last.z)>.002)){
+      estimatePath.push(pose);
+      if(estimatePath.length>5000)estimatePath.shift();
+    }
+    const paths=[{id:'d435',color:0x50e6b2,points:estimatePath}];
+    const estimate={...pose,points,confidence:0};
+    world.setMap(points);
+    world.showMap(true);
+    world.setTrajectories(paths);
+    viewer?.diagnostics(estimate,undefined,paths,{uncertainty:false,graph:false,showMap:true,showPaths:true});
+    el('metric-points').textContent=points.length.toLocaleString();
+    el('metric-ate').textContent='—';
+    el('metric-features').textContent='—';
+    el('metric-time').previousElementSibling!.textContent='SENSOR TIME';
+    el('metric-time').textContent=time===undefined?'—':time.toFixed(2)+' s';
+    el('flight-status').textContent=position?'D435 · RGB-D odometry':'D435 · live depth';
+    drawTrajectory();
+  },
+  d435Images(camera,rgb){
+    const {color,depth}=camera.header;
+    colorPreview.draw(el<HTMLCanvasElement>('rgb').getContext('2d')!,rgb,color.width,color.height,
+      {width:color.width,height:color.height,format:'RGB8',strideBytes:color.width*3,bytes:rgb.byteLength});
+    depthPreview.draw(camera.depth,depth.width,depth.height,5);
+    document.querySelector('#rgb + .sensor-foot')!.textContent=color.width+' × '+color.height+' · D435 color';
+    document.querySelector('#depth + .sensor-foot')!.textContent=depth.width+' × '+depth.height+' · D435 depth · meters';
+  },
+  d435Stopped(){
+    world.setEnvironmentVisible(true);
+  },
   async prepare(resolution,variant){
     if(project.slamBackend==='native'&&project.cameraResolution===resolution&&ready&&!dirty&&runtime.nativeVariant===variant)return;
     runtime.nativeVariant=variant;project.slamBackend='native';project.cameraResolution=resolution;

@@ -3,7 +3,7 @@ import {DEFAULT_LIVE_CONFIG,FrameSelector,frameSpacing,MAX_FRAME_INTERVAL_SECOND
 import {LANDMARK_CAPACITY,LANDMARK_MAGIC,parseLandmarkPacket,selectionThreshold,type LandmarkPacket} from './landmark-source';
 import type {Estimate,InitialSensorFrame} from './types';
 
-export interface LivePeers {ingest:number;runner:number;views:number}
+export interface LivePeers {ingest:number;runner:number;views:number;d435?:number}
 export interface LiveStats {
   connected:boolean;armed:boolean;peers:LivePeers;
   /** Seconds of phone time received (since the first frame) and consumed by the SLAM. */
@@ -32,9 +32,9 @@ export class RateMeter {
 type Incoming={t:number}&({kind:'camera';camera:PhoneCamera}|{kind:'landmarks';packet:LandmarkPacket});
 
 /** What the page tells the phone to do; the relay replays it to a phone that connects later. */
-export function phoneConfig(config:LiveConfig,landmarkLimit:number=LANDMARK_CAPACITY){
+export function phoneConfig(config:LiveConfig,landmarkLimit:number=LANDMARK_CAPACITY,source?:'d435'){
   const mode=resolutionMode(config.resolution);
-  return {type:'config',mode:config.mode,resolution:config.resolution,width:mode.width,height:mode.height,
+  return {type:'config',source,mode:config.mode,resolution:config.resolution,width:mode.width,height:mode.height,
     minConfidence:config.minConfidence,nearMeters:config.nearMeters,farMeters:config.farMeters,depthUnitsMeters:config.depthUnitsMeters,
     landmarkCapacity:Math.max(1,Math.min(LANDMARK_CAPACITY,Math.round(landmarkLimit))),fastThreshold:selectionThreshold(mode.width),frameIntervalSeconds:Math.min(MAX_FRAME_INTERVAL_SECONDS,Math.max(MIN_FRAME_INTERVAL_SECONDS,config.frameIntervalSeconds))};
 }
@@ -72,7 +72,7 @@ export class LiveClient {
   private stopped=false;
   /** Memory ceiling for queued frames; beyond it the phone is told to stop. */
   maxQueuedBytes=200*1024*1024;
-  constructor(readonly url:string,readonly config:LiveConfig=DEFAULT_LIVE_CONFIG){
+  constructor(readonly url:string,readonly config:LiveConfig=DEFAULT_LIVE_CONFIG,readonly source?:'d435'){
     this.builder=new LiveFrameBuilder(this.imu,config);
     const spacing=frameSpacing(config.frameIntervalSeconds);this.selector=new FrameSelector<Incoming>(spacing.minGap,spacing.maxGap);
     this.feed.onChange=()=>this.emit();
@@ -81,7 +81,7 @@ export class LiveClient {
     return new Promise((resolve,reject)=>{
       const socket=this.socket=new WebSocket(this.url);socket.binaryType='arraybuffer';
       let opened=false;
-      socket.onopen=()=>{opened=true;this.send(phoneConfig(this.config,this.builder.landmarkLimit));this.emit();resolve();};
+      socket.onopen=()=>{opened=true;this.send(phoneConfig(this.config,this.builder.landmarkLimit,this.source));this.emit();resolve();};
       socket.onerror=()=>{if(!opened)reject(new Error(`Cannot reach the relay at ${this.url}`));};
       socket.onclose=()=>{this.peers={ingest:0,runner:0,views:0};this.emit();if(opened&&!this.stopped)this.onStatus('Relay connection closed',true);};
       socket.onmessage=event=>this.onMessage(event.data);
@@ -92,13 +92,13 @@ export class LiveClient {
   /** Begin accepting camera frames: the next one becomes the time-zero initial frame. */
   arm():Promise<InitialSensorFrame> {
     this.builder.reset();this.selector.reset();this.feed.clear();this.feed.initial=undefined;
-    this.firstTime=undefined;this.processed=0;this.received=0;this.arrivals.reset();this.completions.reset();this.lastCaptured=0;this.armed=true;this.send(phoneConfig(this.config,this.builder.landmarkLimit));this.emit();
+    this.firstTime=undefined;this.processed=0;this.received=0;this.arrivals.reset();this.completions.reset();this.lastCaptured=0;this.armed=true;this.send(phoneConfig(this.config,this.builder.landmarkLimit,this.source));this.emit();
     return new Promise(resolve=>this.initialWaiters.push(resolve));
   }
   /** Keep only the strongest N landmarks per frame. Applies from the next frame; the phone is told too. */
   setLandmarkLimit(limit:number){
     this.builder.landmarkLimit=Math.max(1,Math.min(LANDMARK_CAPACITY,Math.round(limit)));
-    this.send(phoneConfig(this.config,this.builder.landmarkLimit));
+    this.send(phoneConfig(this.config,this.builder.landmarkLimit,this.source));
   }
   get landmarkLimit(){return this.builder.landmarkLimit;}
   disarm(){this.armed=false;this.emit();}
@@ -109,9 +109,9 @@ export class LiveClient {
         if(message.type==='imu'&&Array.isArray(message.samples)){
           for(const row of message.samples)this.imu.push(phoneImuToFlu(row));
           // Not capturing: keep only the last couple of seconds so an idle connection cannot grow without bound.
-          const latest=this.imu.latestTime;if(!this.armed&&latest!==undefined)this.imu.prune(latest-2);
+          const latest=this.imu.latestTime;if((!this.armed||(this.source&&this.received===0))&&latest!==undefined)this.imu.prune(latest-2);
         }
-        else if(message.type==='peers'){this.peers={ingest:message.ingest,runner:message.runner,views:message.views};this.emit();}
+        else if(message.type==='peers'){this.peers={ingest:message.ingest,runner:message.runner,views:message.views,d435:message.d435};this.emit();}
         else if(message.type==='command')this.onCommand(message);
         return;
       }
@@ -146,7 +146,7 @@ export class LiveClient {
     if(frame.dt===0){
       this.feed.initial=frame as InitialSensorFrame;
       for(const resolve of this.initialWaiters.splice(0))resolve(frame as InitialSensorFrame);
-      this.onStatus('First phone frame received · SLAM initializing');
+      this.onStatus(this.source?'First D435 frame received · SLAM initializing':'First phone frame received · SLAM initializing');
     }else{
       this.feed.push(recordFor(frame));
       if(this.feed.queuedBytes>this.maxQueuedBytes){

@@ -115,7 +115,7 @@ export function phoneImuToFlu(row:readonly number[]):ImuSample {
   return {t,accel:[STANDARD_GRAVITY*az,-STANDARD_GRAVITY*ay,-STANDARD_GRAVITY*ax],gyro:[-gz,gy,gx]};
 }
 
-export interface ImuInterval {time:number;dt:number;imu:{accel:number[];gyro:number[]}}
+export interface ImuInterval {time:number;dt:number;stationary?:boolean;imu:{accel:number[];gyro:number[]}}
 /** Time-ordered IMU history with interval builders for the lab's held-measurement contract. */
 export class ImuBuffer {
   private samples:ImuSample[]=[];

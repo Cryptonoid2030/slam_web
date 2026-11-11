@@ -123,6 +123,10 @@ hardware interfaces. We also plan to optimize **CPU and GPU execution** for
 these FMUs. Complete SLAM FMU export and robot deployment remain roadmap work;
 today's demo ships browser WASM assets.
 
+## Live RealSense D435
+
+[View a live D435 point cloud on Windows](docs/guides/live-d435.md).
+
 ## Develop locally
 
 Maintainers can use the reproducible [Nix environment](flake.nix):

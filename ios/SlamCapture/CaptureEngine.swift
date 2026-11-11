@@ -38,10 +38,11 @@ final class CaptureEngine: NSObject, ObservableObject, ARSessionDelegate {
     private let configLock = NSLock()
     private var landmarkConfig = LandmarkConfig()
     private var configReceived = false
+    private var imuOnly = false
     private var streamStart = Date()
-    private var settings: (config: LandmarkConfig, received: Bool) {
+    private var settings: (config: LandmarkConfig, received: Bool, imuOnly: Bool) {
         configLock.lock(); defer { configLock.unlock() }
-        return (landmarkConfig, configReceived)
+        return (landmarkConfig, configReceived, imuOnly)
     }
 
     override init() {
@@ -56,8 +57,9 @@ final class CaptureEngine: NSObject, ObservableObject, ARSessionDelegate {
             self.configLock.lock()
             self.landmarkConfig = config
             self.configReceived = true
+            self.imuOnly = json["source"] as? String == "d435"
             self.configLock.unlock()
-            DispatchQueue.main.async { self.mode = config.landmarks ? "landmarks \(config.width)x\(config.height)" : "raw frames" }
+            DispatchQueue.main.async { self.mode = json["source"] as? String == "d435" ? "IMU only" : config.landmarks ? "landmarks \(config.width)x\(config.height)" : "raw frames" }
         }
         relay.onPeers = { [weak self] peers in
             DispatchQueue.main.async {
@@ -133,7 +135,7 @@ final class CaptureEngine: NSObject, ObservableObject, ARSessionDelegate {
         configuration.frameSemantics = [.sceneDepth]
         lastSent = 0
         streamStart = Date()
-        configLock.lock(); configReceived = false; configLock.unlock()
+        configLock.lock(); configReceived = false; imuOnly = false; configLock.unlock()
         DispatchQueue.main.async { self.mode = "waiting for the page" }
         streaming = true
         session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
@@ -169,7 +171,8 @@ final class CaptureEngine: NSObject, ObservableObject, ARSessionDelegate {
     func session(_ session: ARSession, didUpdate frame: ARFrame) {
         // runs on delegateQueue
         guard streaming, !busy, let depth = frame.sceneDepth, relay.canAcceptCamera else { return }
-        let (config, received) = settings
+        let (config, received, imuOnly) = settings
+        guard !imuOnly else { return }
         // Until the page says what it wants, send nothing (an older page that never answers gets raw frames).
         if !received && Date().timeIntervalSince(streamStart) < configGrace { return }
         let useLandmarks = received && config.landmarks
